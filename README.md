@@ -1,4 +1,4 @@
-# steps-template
+# @qavajs/steps-template
 
 Library that allow to define step definitions on Gherkin language.
 
