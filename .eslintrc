@@ -8,6 +8,7 @@
   "rules": {
     "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
     "no-restricted-syntax": 0,
     "no-await-in-loop": "off",
     "import/extensions": "off",

@@ -1,11 +1,11 @@
-import { Before, supportCodeLibraryBuilder, When } from '@cucumber/cucumber';
-import memory from '@qavajs/memory';
-import { GherkinDocument, Scenario, FeatureChild } from '@cucumber/messages';
+import * as testCaseRunner from '@cucumber/cucumber/lib/runtime/test_case_runner';
+import * as testStepRunner from '@cucumber/cucumber/lib/runtime/step_runner';
+import { PickleStep, Scenario, TestStep, TestStepResultStatus, TimeConversion, GherkinDocument, FeatureChild } from '@cucumber/messages';
+import { GherkinStreams } from '@cucumber/gherkin-streams';
 import globCb from 'glob';
 import { promisify } from 'util';
-import { parseGherkin } from './parseGherkin';
-
-const glob = promisify(globCb);
+import { supportCodeLibraryBuilder } from '@cucumber/cucumber';
+import { ISupportCodeLibrary } from '@cucumber/cucumber/lib/support_code_library_builder/types';
 
 declare global {
   // eslint-disable-next-line no-var
@@ -13,18 +13,40 @@ declare global {
 }
 
 type ScenarioTemplate = Scenario & { templateRegex: RegExp };
+type GlobFunction = (arg: string) => Promise<Array<string>>;
+const glob: GlobFunction = promisify(globCb);
 
-/**
- * Load templates
- */
-Before(async function () {
-  // parse document
+function findStepDefinition(id: string, supportCodeLibrary: ISupportCodeLibrary) {
+  return supportCodeLibrary.stepDefinitions.find((definition) => definition.id === id);
+}
+
+function parseGherkin(paths: Array<string>): Promise<Array<GherkinDocument>> {
+  return new Promise((resolve, reject) => {
+    const messageStream = GherkinStreams.fromPaths(paths, {});
+    const gherkinDocuments: Array<GherkinDocument> = [];
+    messageStream.on('data', (envelope) => {
+      if (envelope.gherkinDocument) {
+        gherkinDocuments.push(envelope.gherkinDocument);
+      }
+    });
+    messageStream.on('end', () => {
+      resolve(gherkinDocuments);
+    });
+    messageStream.on('error', reject);
+  });
+}
+
+let templates: Array<ScenarioTemplate>;
+
+async function loadTemplates() {
+  if (templates) return templates;
   const templatePaths = await global.config.templates.reduce(
     async (paths: Array<string>, pattern: string) => (await paths).concat(await glob(pattern)),
     [],
   );
-  const gherkinDocuments = await parseGherkin(templatePaths);
-  const templates = gherkinDocuments
+  const gherkinDocuments: Array<GherkinDocument> = await parseGherkin(templatePaths);
+  // memo templates
+  templates = gherkinDocuments
     .reduce((scenarios: Array<FeatureChild>, doc: GherkinDocument) => scenarios.concat(doc.feature ? doc.feature.children : []), [])
     .map((featureChild: FeatureChild) => {
       const scenario = featureChild.scenario;
@@ -34,28 +56,65 @@ Before(async function () {
         templateRegex: new RegExp(`^${scenario.name.replace(/(<.+?>)/g, "'(.+?)'")}$`),
       };
     });
-  memory.setValue('templateDefs', templates);
-});
+  return templates;
+}
 
-/**
- * This is composite step definition. To find actual steps review feature defined in templates property in config.
- */
-When('f: {}', async function (compositeStep) {
-  const templateDefs = memory.getValue('$templateDefs');
-  // find scenario
-  const scenario = templateDefs.find((s: ScenarioTemplate) => s.templateRegex.test(compositeStep));
-  if (!scenario) throw new Error(`Composite step '${compositeStep}' is not found`);
-  const scenarioArgs = compositeStep.match(scenario.templateRegex).splice(1);
+async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, compositeStep: string) {
+  if (this.isSkippingSteps()) {
+    return {
+      status: TestStepResultStatus.SKIPPED,
+      duration: TimeConversion.millisecondsToDuration(0),
+    };
+  }
+  const scenario = templateDefs.find((s) => s.templateRegex.test(compositeStep));
+  if (!scenario) {
+    return {
+      status: TestStepResultStatus.UNDEFINED,
+      duration: TimeConversion.millisecondsToDuration(0),
+    };
+  }
+  const matchArgs = compositeStep.match(scenario.templateRegex);
+  const scenarioArgs = matchArgs ? matchArgs.splice(1) : [];
   // get step defs
-  const stepDefs = supportCodeLibraryBuilder.buildStepDefinitions(templateDefs.map((step: ScenarioTemplate) => step.id));
+  const stepDefs = supportCodeLibraryBuilder.buildStepDefinitions(templateDefs.map((step) => step.id));
   // execute steps
   for (const step of scenario.steps) {
     const stepDefinition = stepDefs.stepDefinitions.find((sd) => sd.matchesStepName(step.text));
-    if (!stepDefinition) throw new Error(`${step.text} is not defined`);
-    for (const arg of scenarioArgs) {
-      step.text = step.text.replace(/(<.+?>)/, arg);
+    if (!stepDefinition) {
+      return {
+        status: TestStepResultStatus.FAILED,
+        message: `${step.text} is not defined`,
+        duration: TimeConversion.millisecondsToDuration(0),
+      };
     }
-    const args = await stepDefinition.getInvocationParameters({ step, world: this } as any);
-    await stepDefinition.code.apply(this, args.parameters);
+    step.text = scenarioArgs.reduce((text, arg) => text.replace(/(<.+?>)/, arg), step.text);
+    const hookParameter = {
+      gherkinDocument: this.gherkinDocument,
+      pickle: this.pickle,
+      testCaseStartedId: this.currentTestCaseStartedId,
+    };
+    const result = await testStepRunner.run({
+      defaultTimeout: this.supportCodeLibrary.defaultTimeout,
+      hookParameter,
+      step,
+      stepDefinition,
+      world: this.world,
+    } as any);
+    if (result.status === TestStepResultStatus.FAILED) return result;
   }
-});
+  return {
+    status: TestStepResultStatus.PASSED,
+    duration: TimeConversion.millisecondsToDuration(0),
+  };
+}
+
+const originRunStep = testCaseRunner.default.prototype.runStep;
+// patch runStep method
+testCaseRunner.default.prototype.runStep = async function (this: any, pickleStep: PickleStep, testStep: TestStep) {
+  // @ts-ignore
+  const stepDefinitions = testStep.stepDefinitionIds.map((stepDefinitionId) => findStepDefinition(stepDefinitionId, this.supportCodeLibrary));
+  if (stepDefinitions.length === 0) {
+    return runTemplate.apply(this, [await loadTemplates(), pickleStep.text]);
+  }
+  return originRunStep.apply(this, [pickleStep, testStep]);
+};
