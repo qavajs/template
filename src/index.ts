@@ -7,7 +7,7 @@ import {
   TimeConversion,
   GherkinDocument,
   FeatureChild,
-  getWorstTestStepResult
+  getWorstTestStepResult,
 } from '@cucumber/messages';
 import { GherkinStreams } from '@cucumber/gherkin-streams';
 import globCb from 'glob';
@@ -103,9 +103,9 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, com
       };
     }
     step.text = scenarioArgs.reduce((text, arg) => text.replace(new RegExp(arg.name, 'g'), arg.value), step.text);
-    //run BeforeStep hooks
+    // run BeforeStep hooks
     let stepResults = await this.runStepHooks(this.getBeforeStepHookDefinitions(), step);
-    //run step itself
+    // run step itself
     let stepResult;
     if (getWorstTestStepResult(stepResults).status !== TestStepResultStatus.FAILED) {
       const hookParameter = {
@@ -116,7 +116,7 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, com
       stepResult = await this.invokeStep(step, stepDefinition, hookParameter);
       stepResults.push(stepResult);
     }
-    //run AfterStep hooks
+    // run AfterStep hooks
     const afterStepHookResults = await this.runStepHooks(this.getAfterStepHookDefinitions(), step, stepResult);
     stepResults = stepResults.concat(afterStepHookResults);
     const finalStepResult = getWorstTestStepResult(stepResults);
