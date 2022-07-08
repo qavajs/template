@@ -12,7 +12,10 @@ declare global {
   var config: any;
 }
 
-type ScenarioTemplate = Scenario & { templateRegex: RegExp };
+type ScenarioTemplate = Scenario & {
+  templateRegex: RegExp,
+  argNames: Array<string>
+};
 type GlobFunction = (arg: string) => Promise<Array<string>>;
 const glob: GlobFunction = promisify(globCb);
 
@@ -54,6 +57,7 @@ async function loadTemplates() {
       return {
         ...scenario,
         templateRegex: new RegExp(`^${scenario.name.replace(/(<.+?>)/g, "'(.+?)'")}$`),
+        argNames: scenario.name.match(/(<.+?>)/g) ?? []
       };
     });
   return templates;
@@ -74,7 +78,9 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, com
     };
   }
   const matchArgs = compositeStep.match(scenario.templateRegex);
-  const scenarioArgs = matchArgs ? matchArgs.splice(1) : [];
+  const args = matchArgs ? matchArgs.splice(1) : [];
+  const scenarioArgs = scenario.argNames.map((name, index) => ({name, value: args[index]}));
+
   // get step defs
   const stepDefs = supportCodeLibraryBuilder.buildStepDefinitions(templateDefs.map((step) => step.id));
   // execute steps
@@ -87,7 +93,10 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, com
         duration: TimeConversion.millisecondsToDuration(0),
       };
     }
-    step.text = scenarioArgs.reduce((text, arg) => text.replace(/(<.+?>)/, arg), step.text);
+    step.text = scenarioArgs.reduce(
+        (text, arg) => text.replace(new RegExp(arg.name, 'g'), arg.value),
+        step.text
+    );
     const hookParameter = {
       gherkinDocument: this.gherkinDocument,
       pickle: this.pickle,
