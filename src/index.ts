@@ -1,6 +1,14 @@
 import * as testCaseRunner from '@cucumber/cucumber/lib/runtime/test_case_runner';
-import * as testStepRunner from '@cucumber/cucumber/lib/runtime/step_runner';
-import { PickleStep, Scenario, TestStep, TestStepResultStatus, TimeConversion, GherkinDocument, FeatureChild } from '@cucumber/messages';
+import {
+  PickleStep,
+  Scenario,
+  TestStep,
+  TestStepResultStatus,
+  TimeConversion,
+  GherkinDocument,
+  FeatureChild,
+  getWorstTestStepResult
+} from '@cucumber/messages';
 import { GherkinStreams } from '@cucumber/gherkin-streams';
 import globCb from 'glob';
 import { promisify } from 'util';
@@ -48,6 +56,7 @@ async function loadTemplates() {
     [],
   );
   const gherkinDocuments: Array<GherkinDocument> = await parseGherkin(templatePaths);
+  const argRegexp = /(<.+?>)/g;
   // memo templates
   templates = gherkinDocuments
     .reduce((scenarios: Array<FeatureChild>, doc: GherkinDocument) => scenarios.concat(doc.feature ? doc.feature.children : []), [])
@@ -56,8 +65,8 @@ async function loadTemplates() {
       if (!scenario) throw new Error('Scenario is not defined');
       return {
         ...scenario,
-        templateRegex: new RegExp(`^${scenario.name.replace(/(<.+?>)/g, "'(.+?)'")}$`),
-        argNames: scenario.name.match(/(<.+?>)/g) ?? [],
+        templateRegex: new RegExp(`^${scenario.name.replace(argRegexp, "'(.+?)'")}$`),
+        argNames: scenario.name.match(argRegexp) ?? [],
       };
     });
   return templates;
@@ -94,19 +103,24 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, com
       };
     }
     step.text = scenarioArgs.reduce((text, arg) => text.replace(new RegExp(arg.name, 'g'), arg.value), step.text);
-    const hookParameter = {
-      gherkinDocument: this.gherkinDocument,
-      pickle: this.pickle,
-      testCaseStartedId: this.currentTestCaseStartedId,
-    };
-    const result = await testStepRunner.run({
-      defaultTimeout: this.supportCodeLibrary.defaultTimeout,
-      hookParameter,
-      step,
-      stepDefinition,
-      world: this.world,
-    } as any);
-    if (result.status === TestStepResultStatus.FAILED) return result;
+    //run BeforeStep hooks
+    let stepResults = await this.runStepHooks(this.getBeforeStepHookDefinitions(), step);
+    //run step itself
+    let stepResult;
+    if (getWorstTestStepResult(stepResults).status !== TestStepResultStatus.FAILED) {
+      const hookParameter = {
+        gherkinDocument: this.gherkinDocument,
+        pickle: this.pickle,
+        testCaseStartedId: this.currentTestCaseStartedId,
+      };
+      stepResult = await this.invokeStep(step, stepDefinition, hookParameter);
+      stepResults.push(stepResult);
+    }
+    //run AfterStep hooks
+    const afterStepHookResults = await this.runStepHooks(this.getAfterStepHookDefinitions(), step, stepResult);
+    stepResults = stepResults.concat(afterStepHookResults);
+    const finalStepResult = getWorstTestStepResult(stepResults);
+    if (finalStepResult.status === TestStepResultStatus.FAILED) return finalStepResult;
   }
   return {
     status: TestStepResultStatus.PASSED,
