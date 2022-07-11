@@ -1,5 +1,5 @@
 {
-  "name": "@qavajs/steps-template",
+  "name": "@qavajs/template",
   "version": "0.0.1",
   "description": "library that allow to define step definitions on Gherkin language",
   "scripts": {

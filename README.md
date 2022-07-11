@@ -1,5 +1,4 @@
-# @qavajs/steps-template
-
+# @qavajs/template
 Library that allow to define step definitions on Gherkin language.
 
 ```gherkin
@@ -12,17 +11,17 @@ Feature: Templates
     And I click 'Login Form > Login Button'
 ```
 
-Then following template can be called from scenario via special f: step
+Then following template can be called from scenario as simple step
 
 ```gherkin
 Feature: Auth
 
   Scenario: Verify that user is able to login
-    When f: I login
+    When I login
     Then I expect 'Header' to be visible
 ```
 
-Templates also can accept parameters as <param> e.g
+Templates also can accept parameters as < param> e.g
 
 ```gherkin
 Feature: Templates
@@ -40,7 +39,7 @@ Then following template can be called with actual params
 Feature: Auth
 
   Scenario: Verify that user is able to login
-    When f: I login as 'admin' with 'admin' password
+    When I login as 'admin' with 'admin' password
     Then I expect 'Header' to be visible
 ```
  
@@ -50,8 +49,10 @@ in require
 module.exports = {
     default: {
         require: [
-            'node_modules/@qavajs/steps-config-loader',
-            'node_modules/@qavajs/steps-template'
+            'node_modules/@qavajs/steps-config-loader'
+        ],
+        requireModule: [
+            '@qavajs/template'
         ],
         templates: ['templates/*.feature']
     }
