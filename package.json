@@ -1,6 +1,6 @@
 {
   "name": "@qavajs/template",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "library that allow to define step definitions on Gherkin language",
   "scripts": {
     "build": "tsc",

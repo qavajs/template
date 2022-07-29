@@ -65,7 +65,7 @@ async function loadTemplates() {
       if (!scenario) throw new Error('Scenario is not defined');
       return {
         ...scenario,
-        templateRegex: new RegExp(`^${scenario.name.replace(argRegexp, "'(.+?)'")}$`),
+        templateRegex: new RegExp(`^${scenario.name.replace(argRegexp, "(.+?)")}$`),
         argNames: scenario.name.match(argRegexp) ?? [],
       };
     });

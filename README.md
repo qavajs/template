@@ -26,7 +26,7 @@ Templates also can accept parameters as < param> e.g
 ```gherkin
 Feature: Templates
 
-  Scenario: I login as <username> with <password> password
+  Scenario: I login as '<username>' with '<password>' password
     When I open 'https://your-app.com'
     And I type '<username>' to 'Login Form > Username Input'
     And I type '<password>' to 'Login Form > Password Input'
