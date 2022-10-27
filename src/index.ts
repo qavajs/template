@@ -47,10 +47,7 @@ function parseGherkin(paths: Array<string>): Promise<Array<GherkinDocument>> {
   });
 }
 
-let templates: Array<ScenarioTemplate>;
-
 async function loadTemplates() {
-  if (templates) return templates;
   const templatePaths = await global.config.templates.reduce(
     async (paths: Array<string>, pattern: string) => (await paths).concat(await glob(pattern)),
     [],
@@ -58,14 +55,14 @@ async function loadTemplates() {
   const gherkinDocuments: Array<GherkinDocument> = await parseGherkin(templatePaths);
   const argRegexp = /(<.+?>)/g;
   // memo templates
-  templates = gherkinDocuments
+  const templates: Array<ScenarioTemplate> = gherkinDocuments
     .reduce((scenarios: Array<FeatureChild>, doc: GherkinDocument) => scenarios.concat(doc.feature ? doc.feature.children : []), [])
     .map((featureChild: FeatureChild) => {
       const scenario = featureChild.scenario;
       if (!scenario) throw new Error('Scenario is not defined');
       return {
         ...scenario,
-        templateRegex: new RegExp(`^${scenario.name.replace(argRegexp, "(.+?)")}$`),
+        templateRegex: new RegExp(`^${scenario.name.replace(argRegexp, '(.+?)')}$`),
         argNames: scenario.name.match(argRegexp) ?? [],
       };
     });
