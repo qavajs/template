@@ -3,7 +3,6 @@ import memory from '@qavajs/memory';
 import { expect } from 'chai';
 
 When('I set memory value {string} as {string}', function (key, value) {
-    console.log(key, value)
     memory.setValue(key, value);
 });
 
