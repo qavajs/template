@@ -32,6 +32,8 @@ function findStepDefinition(id: string, supportCodeLibrary: ISupportCodeLibrary)
 }
 
 function parseGherkin(paths: Array<string>): Promise<Array<GherkinDocument>> {
+  // guard to check if templates found, otherwise gherkin streams hangs
+  if (paths.length === 0) return Promise.resolve([])
   return new Promise((resolve, reject) => {
     const messageStream = GherkinStreams.fromPaths(paths, {});
     const gherkinDocuments: Array<GherkinDocument> = [];
@@ -131,7 +133,16 @@ testCaseRunner.default.prototype.runStep = async function (this: any, pickleStep
   // @ts-ignore
   const stepDefinitions = testStep.stepDefinitionIds.map((stepDefinitionId) => findStepDefinition(stepDefinitionId, this.supportCodeLibrary));
   if (stepDefinitions.length === 0) {
-    return runTemplate.apply(this, [await loadTemplates(), pickleStep.text]);
+    // guard to check if templates property provided
+    if (!global.config.templates) {
+      console.warn('Property templates is not defined. Make sure you have added it to config file');
+      return {
+        status: TestStepResultStatus.UNDEFINED,
+        duration: TimeConversion.millisecondsToDuration(0),
+      };
+    }
+    const templates = await loadTemplates();
+    return runTemplate.apply(this, [templates, pickleStep.text]);
   }
   return originRunStep.apply(this, [pickleStep, testStep]);
 };
