@@ -48,9 +48,6 @@ in require
 ```javascript
 module.exports = {
     default: {
-        require: [
-            'node_modules/@qavajs/steps-config-loader'
-        ],
         requireModule: [
             '@qavajs/template'
         ],
