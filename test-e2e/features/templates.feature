@@ -16,3 +16,11 @@ Feature: Templates
       | key    | value |
       | answer | 50    |
       | foo    | bar   |
+
+  Scenario: complex template
+    When complex template
+    Then I expect '$answer' memory value to be equal '42'
+
+  Scenario: complex parametrized template
+    When complex parametrized template 'anotherAnswer' '7'
+    Then I expect '$anotherAnswer' memory value to be equal '7'
