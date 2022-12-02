@@ -11,3 +11,7 @@ Then('I expect {string} memory value to be equal {string}', function(actual, exp
     const expectedValue = memory.getValue(expected);
     expect(expectedValue).to.eql(actualValue);
 });
+
+When('I throw {string} error', function (errorMessage) {
+    throw new Error(errorMessage);
+})

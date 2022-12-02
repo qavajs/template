@@ -26,3 +26,9 @@ Feature: Templates
   Scenario: recursive template 3
 #   When simple template
     When recursive template 1
+
+  Scenario: template throw error
+    When I throw 'Pomylka' error
+
+  Scenario: template throw error 2
+    When template throw error
