@@ -4,8 +4,8 @@ import {
   getWorstTestStepResult,
   GherkinDocument,
   PickleStep,
-  Scenario,
-  TestStep,
+  Scenario, Step,
+  TestStep, TestStepResult,
   TestStepResultStatus,
   TimeConversion,
 } from '@cucumber/messages';
@@ -30,6 +30,16 @@ const glob: GlobFunction = promisify(globCb);
 
 function findStepDefinition(id: string, supportCodeLibrary: ISupportCodeLibrary) {
   return supportCodeLibrary.stepDefinitions.find((definition) => definition.id === id);
+}
+
+/**
+ * Add template stack trace
+ * @param result - original step result
+ * @param step - template step invoked failed step
+ */
+function formatErrorMessage(result: TestStepResult, step: Step): TestStepResult {
+  result.message = `${step.keyword}${step.text}\n${result.message}`;
+  return result;
 }
 
 function parseGherkin(paths: Array<string>): Promise<Array<GherkinDocument>> {
@@ -140,7 +150,10 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, com
     }
     // finalizing scenario
     const finalStepResult = getWorstTestStepResult(stepResults);
-    if (finalStepResult.status === TestStepResultStatus.FAILED) return finalStepResult;
+
+    if (finalStepResult.status === TestStepResultStatus.FAILED) {
+      return formatErrorMessage(finalStepResult, step);
+    }
   }
   return {
     status: TestStepResultStatus.PASSED,
