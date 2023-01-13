@@ -24,3 +24,8 @@ Feature: Templates
   Scenario: complex parametrized template
     When complex parametrized template 'anotherAnswer' '7'
     Then I expect '$anotherAnswer' memory value to be equal '7'
+
+  Scenario: twice call same template with different params
+    When template that twice call other template
+    Then I expect '$param1' memory value to be equal 'value1'
+    Then I expect '$param2' memory value to be equal 'value2'

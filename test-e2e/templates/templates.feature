@@ -16,7 +16,6 @@ Feature: Templates
     When I set memory value 'answer' as '42'
     When recursive template
 
-
   Scenario: recursive template 1
     When recursive template 2
 
@@ -32,3 +31,7 @@ Feature: Templates
 
   Scenario: template throw error 2
     When template throw error
+
+  Scenario: template that twice call other template
+    When parametrized template 'param1' 'value1'
+    When parametrized template 'param2' 'value2'
