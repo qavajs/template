@@ -110,7 +110,6 @@
   },
   "plugins": [
     "prettier",
-    "cucumber",
     "@typescript-eslint",
     "import"
   ],

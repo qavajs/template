@@ -116,6 +116,7 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, com
   const stepDefs = supportCodeLibraryBuilder.buildStepDefinitions(templateDefs.map((step) => step.id));
   // execute steps
   for (const step of scenario.steps) {
+    const stepTemplateText = step.text;
     step.text = scenarioArgs.reduce((text, arg) => text.replace(new RegExp(arg.name, 'g'), arg.value), step.text);
     const stepDefinition = stepDefs.stepDefinitions.find((sd) => sd.matchesStepName(step.text));
     const stepResults = [];
@@ -150,7 +151,7 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, com
     }
     // finalizing scenario
     const finalStepResult = getWorstTestStepResult(stepResults);
-
+    step.text = stepTemplateText;
     if (finalStepResult.status === TestStepResultStatus.FAILED) {
       return formatErrorMessage(finalStepResult, step);
     }
