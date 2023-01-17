@@ -1,4 +1,4 @@
-## Current
+## 0.0.5
 - :beetle: fixed issue with multiple call of parametrised template in other template
 
 ## 0.0.4
