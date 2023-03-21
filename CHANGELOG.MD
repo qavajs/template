@@ -1,3 +1,7 @@
+## 0.0.6
+- :rocket: added capability to pass cucumber multiline
+- :rocket: added capability to pass key value params
+
 ## 0.0.5
 - :beetle: fixed issue with multiple call of parametrised template in other template
 

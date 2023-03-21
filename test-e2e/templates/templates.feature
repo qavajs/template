@@ -35,3 +35,19 @@ Feature: Templates
   Scenario: template that twice call other template
     When parametrized template 'param1' 'value1'
     When parametrized template 'param2' 'value2'
+
+  Scenario: template with multiline string:
+    When step with multiline string:
+    """
+    <qavajsMultiline>
+    """
+
+  Scenario: template with data table:
+    When I set memory value 'someKey' as '<someKey>'
+    And I set memory value 'anotherSomeKey' as '<anotherSomeKey>'
+
+  Scenario: template with data table step
+    When step with data table:
+      | dt1 | 1 |
+      | dt2 | str |
+

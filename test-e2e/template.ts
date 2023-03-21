@@ -8,6 +8,7 @@ export default {
         'test-e2e/templates/*.feature'
     ],
     format: [
+        '@qavajs/console-formatter',
         '@qavajs/xunit-formatter:test-e2e/report.xml'
     ],
     memory: new Memory(),

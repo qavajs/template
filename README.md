@@ -1,6 +1,7 @@
 # @qavajs/template
 Library that allow to define step definitions on Gherkin language.
 
+## Templates
 ```gherkin
 Feature: Templates
 
@@ -21,7 +22,23 @@ Feature: Auth
     Then I expect 'Header' to be visible
 ```
 
-Templates also can accept parameters as < param> e.g
+## Configuration
+To use templates their location need to be passed to templates property of config file and library need to be listed
+in require
+```javascript
+module.exports = {
+    default: {
+        requireModule: [
+            '@qavajs/template'
+        ],
+        templates: ['templates/*.feature']
+    }
+}
+
+```
+
+## Parameters  
+Templates also can accept parameters as `<param>` e.g
 
 ```gherkin
 Feature: Templates
@@ -42,17 +59,47 @@ Feature: Auth
     When I login as 'admin' with 'admin' password
     Then I expect 'Header' to be visible
 ```
- 
-To use templates their location need to be passed to templates property of config file and library need to be listed
-in require
-```javascript
-module.exports = {
-    default: {
-        requireModule: [
-            '@qavajs/template'
-        ],
-        templates: ['templates/*.feature']
-    }
-}
 
+## Multiline parameter
+It is also possible to pass multi line parameter to template
+```gherkin
+Feature: TextArea
+
+  Scenario: Verify that user is able to login
+    When I set text area:
+    """
+    this
+    is
+    multiline
+    text
+    """
 ```
+
+Multiline data can be accessed by `<qavajsMultiline>` formal parameter in template
+```gherkin
+Feature: Templates
+
+  Scenario: I set text area:
+    When I type '<qavajsMultiline>' to 'Form > Text Area'
+```
+
+## Key Value Params
+Multiple parameters can be passed in form of key-value data table
+```gherkin
+Feature: TextArea
+
+  Scenario: Verify that user is able to login
+    When I fill registration form:
+      | name     | John Dou                 |
+      | position | Test Automation Engineer |
+```
+
+And values can be accessed by corresponding keys
+```gherkin
+Feature: Templates
+
+  Scenario: I fill registration form:
+    When I type '<name>' to 'Form > Name'
+    When I type '<position>' to 'Form > Position'
+```
+
