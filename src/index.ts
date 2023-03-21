@@ -114,7 +114,7 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pic
     // get scenario arguments
     const matchArgs = pickleStep.text.match(scenario.templateRegex);
     const args = matchArgs ? matchArgs.splice(1) : [];
-    const scenarioArgs = scenario.argNames.map((name, index) => ({ name: name.replace(/^<|>$/g, ''), value: args[index] }));
+    const scenarioArgs = scenario.argNames.map((name, index) => ({ name: name.replace(/(^<)|(>$)/g, ''), value: args[index] }));
     // if data table or multiline exist add them to scenario args
     if (pickleStep?.argument?.docString) {
         scenarioArgs.push({
