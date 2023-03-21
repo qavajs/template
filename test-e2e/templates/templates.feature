@@ -48,6 +48,6 @@ Feature: Templates
 
   Scenario: template with data table step
     When step with data table:
-      | dt1 | 1 |
+      | dt1 | 1   |
       | dt2 | str |
 
