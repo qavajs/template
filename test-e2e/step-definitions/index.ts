@@ -12,6 +12,22 @@ Then('I expect {string} memory value to be equal {string}', function(actual, exp
     expect(expectedValue).to.eql(actualValue);
 });
 
+Then('I expect {string} memory value to be equal:', function(actual, multilineExpected) {
+    const actualValue = memory.getValue(actual);
+    const expectedValue = memory.getValue(multilineExpected);
+    expect(expectedValue).to.eql(actualValue);
+});
+
 When('I throw {string} error', function (errorMessage) {
     throw new Error(errorMessage);
-})
+});
+
+When('step with multiline string:', function (text) {
+    memory.setValue('multiline', text);
+});
+
+When('step with data table:', function (dataTable) {
+    for (const row of dataTable.raw()) {
+        memory.setValue(row[0], row[1]);
+    }
+});
