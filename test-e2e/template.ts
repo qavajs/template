@@ -9,7 +9,8 @@ export default {
     ],
     format: [
         '@qavajs/console-formatter',
-        '@qavajs/xunit-formatter:test-e2e/report.xml'
+        '@qavajs/xunit-formatter:test-e2e/report.xml',
+        'json:test-e2e/report.json'
     ],
     memory: new Memory(),
     parallel: 1,
