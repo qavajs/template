@@ -5,18 +5,20 @@ import {
     GherkinDocument,
     PickleStep,
     Scenario,
-    Step,
     TestStep,
     TestStepResult,
     TestStepResultStatus,
     TimeConversion,
 } from '@cucumber/messages';
-import { GherkinStreams } from '@cucumber/gherkin-streams';
-import globCb from 'glob';
-import { promisify } from 'util';
+import { glob } from 'glob';
 import { supportCodeLibraryBuilder } from '@cucumber/cucumber';
-import { ISupportCodeLibrary } from '@cucumber/cucumber/lib/support_code_library_builder/types';
-import { cloneDeep } from './utils';
+import {
+    cloneDeep,
+    formatErrorMessage,
+    getDuration,
+    parseGherkin,
+    findStepDefinition
+} from './utils';
 
 declare global {
     // eslint-disable-next-line no-var
@@ -27,47 +29,15 @@ type ScenarioTemplate = Scenario & {
     templateRegex: RegExp;
     argNames: Array<string>;
 };
-type GlobFunction = (arg: string) => Promise<Array<string>>;
-const glob: GlobFunction = promisify(globCb);
+
 const QAVAJS_MULTILINE = 'qavajsMultiline';
-
-function findStepDefinition(id: string, supportCodeLibrary: ISupportCodeLibrary) {
-    return supportCodeLibrary.stepDefinitions.find((definition) => definition.id === id);
-}
-
-/**
- * Add template stack trace
- * @param result - original step result
- * @param step - template step invoked failed step
- */
-function formatErrorMessage(result: TestStepResult, step: Step): TestStepResult {
-    result.message = `${step.keyword}${step.text}\n${result.message}`;
-    return result;
-}
-
-function parseGherkin(paths: Array<string>): Promise<Array<GherkinDocument>> {
-    // guard to check if templates found, otherwise gherkin streams hangs
-    if (paths.length === 0) return Promise.resolve([]);
-    return new Promise((resolve, reject) => {
-        const messageStream = GherkinStreams.fromPaths(paths, {});
-        const gherkinDocuments: Array<GherkinDocument> = [];
-        messageStream.on('data', (envelope) => {
-            if (envelope.gherkinDocument) {
-                gherkinDocuments.push(envelope.gherkinDocument);
-            }
-        });
-        messageStream.on('end', () => {
-            resolve(gherkinDocuments);
-        });
-        messageStream.on('error', reject);
-    });
-}
 
 // memo for gherkin documents
 let gherkinDocuments: Array<GherkinDocument>;
 
 async function loadTemplates() {
     const templatePaths = await global.config.templates.reduce(
+        // @ts-ignore
         async (paths: Array<string>, pattern: string) => (await paths).concat(await glob(pattern)),
         [],
     );
@@ -90,7 +60,7 @@ async function loadTemplates() {
     return templates;
 }
 
-async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pickleStep: PickleStep, callerSteps: Array<string>) {
+async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pickleStep: PickleStep, callerSteps: Array<string>): Promise<TestStepResult> {
     if (this.isSkippingSteps()) {
         return {
             status: TestStepResultStatus.SKIPPED,
@@ -130,6 +100,7 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pic
     // get step defs
     const stepDefs = supportCodeLibraryBuilder.buildStepDefinitions(templateDefs.map((step) => step.id));
     // execute steps
+    const stepResults = [];
     for (const step of scenario.steps) {
         const stepTemplateText = step.text;
         step.text = scenarioArgs.reduce((text, arg) => text.replace(new RegExp(`<${arg.name}>`, 'g'), arg.value), step.text);
@@ -152,7 +123,6 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pic
                 dataTable: { rows: step.dataTable.rows },
             };
         }
-        const stepResults = [];
         // try to find template
         if (!stepDefinition) {
             // @ts-ignore
@@ -186,13 +156,14 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pic
         // finalizing scenario
         const finalStepResult = getWorstTestStepResult(stepResults);
         step.text = stepTemplateText;
+        const duration = getDuration(stepResults);
         if (finalStepResult.status === TestStepResultStatus.FAILED) {
-            return formatErrorMessage(finalStepResult, step);
+            return formatErrorMessage(finalStepResult, step, duration);
         }
     }
     return {
         status: TestStepResultStatus.PASSED,
-        duration: TimeConversion.millisecondsToDuration(0),
+        duration: getDuration(stepResults),
     };
 }
 
