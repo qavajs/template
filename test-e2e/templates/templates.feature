@@ -51,3 +51,7 @@ Feature: Templates
       | dt1 | 1   |
       | dt2 | str |
 
+  Scenario: parametrized template with step with data table '<param>'
+    When step with data table:
+      | dataTableParam | <param> |
+

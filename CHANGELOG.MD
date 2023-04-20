@@ -1,3 +1,7 @@
+## 0.0.7
+- :beetle: fixed template duration
+- :beetle: fixed data table params in templates
+
 ## 0.0.6
 - :rocket: added capability to pass cucumber multiline
 - :rocket: added capability to pass key value params

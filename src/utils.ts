@@ -58,3 +58,14 @@ export function getDuration(results: Array<TestStepResult>): Duration {
         )
     )
 }
+
+/**
+ * Resolve value with scenario args
+ * @param {string} value - original value
+ * @param {Array<string>} scenarioArgs - array of scenario values
+ * return {string} - resolved string
+ */
+export function resolveTemplateParams(value: string, scenarioArgs: Array<{name: string, value: string}>) {
+    const reducer = (text: string, arg: {name: string, value: string}) => text.replace(new RegExp(`<${arg.name}>`, 'g'), arg.value);
+    return scenarioArgs.reduce(reducer, value);
+}

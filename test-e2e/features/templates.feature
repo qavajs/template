@@ -55,3 +55,7 @@ Feature: Templates
     When template with data table step
     Then I expect '$dt1' memory value to be equal '1'
     Then I expect '$dt2' memory value to be equal 'str'
+
+  Scenario: template with data table step
+    When parametrized template with step with data table 'dataTableParamValue'
+    Then I expect '$dataTableParam' memory value to be equal 'dataTableParamValue'
