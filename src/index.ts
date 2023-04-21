@@ -17,7 +17,7 @@ import {
     formatErrorMessage,
     getDuration,
     parseGherkin,
-    findStepDefinition
+    findStepDefinition, resolveTemplateParams
 } from './utils';
 
 declare global {
@@ -103,7 +103,7 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pic
     const stepResults = [];
     for (const step of scenario.steps) {
         const stepTemplateText = step.text;
-        step.text = scenarioArgs.reduce((text, arg) => text.replace(new RegExp(`<${arg.name}>`, 'g'), arg.value), step.text);
+        step.text = resolveTemplateParams(step.text, scenarioArgs)
         const stepDefinition = stepDefs.stepDefinitions.find((sd) => sd.matchesStepName(step.text));
         if (step.docString) {
             // @ts-ignore
@@ -111,16 +111,19 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pic
                 docString: { content: step.docString.content },
             };
             // @ts-ignore
-            step.argument.docString.content = scenarioArgs.reduce(
-                (text, arg) => text.replace(new RegExp(`<${arg.name}>`, 'g'), arg.value),
-                // @ts-ignore
-                step.argument.docString.content,
-            );
+            step.argument.docString.content = resolveTemplateParams(step.argument.docString.content, scenarioArgs)
         }
         if (step.dataTable) {
+            const rows = step.dataTable.rows.map(row => ({
+                ...row,
+                cells: row.cells.map(cell => ({
+                    ...cell,
+                    value: resolveTemplateParams(cell.value, scenarioArgs)
+                }))
+            }))
             // @ts-ignore
             step.argument = {
-                dataTable: { rows: step.dataTable.rows },
+                dataTable: { rows },
             };
         }
         // try to find template
