@@ -1,7 +1,6 @@
-import { test, jest } from '@jest/globals';
-import * as cucumber from '@cucumber/cucumber';
+import { test, vi } from 'vitest';
 
-jest.mock('@cucumber/cucumber');
+vi.mock('@cucumber/cucumber');
 
 test('should import index', async () => {
   await import('../index.js');
