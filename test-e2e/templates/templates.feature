@@ -55,3 +55,11 @@ Feature: Templates
     When step with data table:
       | dataTableParam | <param> |
 
+  Scenario: simple (template)
+    When I set memory value 'answer' as '42'
+
+  Scenario: simple [template]
+    When I set memory value 'answer' as '42'
+
+  Scenario: simple ., +, *, ?, ^, $, (, ), [, ], {, }, |, \
+    When I set memory value 'answer' as '42'

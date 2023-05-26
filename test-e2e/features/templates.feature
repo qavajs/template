@@ -59,3 +59,15 @@ Feature: Templates
   Scenario: template with data table step
     When parametrized template with step with data table 'dataTableParamValue'
     Then I expect '$dataTableParam' memory value to be equal 'dataTableParamValue'
+
+  Scenario: simple template with parenthesis
+    When simple (template)
+    Then I expect '$answer' memory value to be equal '42'
+
+  Scenario: simple template with square brackets
+    When simple [template]
+    Then I expect '$answer' memory value to be equal '42'
+
+  Scenario: simple template with $
+    When simple ., +, *, ?, ^, $, (, ), [, ], {, }, |, \
+    Then I expect '$answer' memory value to be equal '42'

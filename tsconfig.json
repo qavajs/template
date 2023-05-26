@@ -8,10 +8,9 @@
     "node_modules"
   ],
   "compilerOptions": {
-    "baseUrl": ".",
-    "target": "esnext",
+    "target": "es2016",
     "module": "commonjs",
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "outDir": "./lib",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -35,9 +34,6 @@
     "types": [
       "node",
       "@qavajs/memory"
-    ],
-    "paths": {        /* Specify a set of entries that re-map imports to additional lookup locations. */
-      "@src/*":["src/*"]
-    },
+    ]
   }
 }

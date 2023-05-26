@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest --coverage run",
-    "test:e2e": "ts-node --esm --project tsconfig.json node_modules/@qavajs/cli/bin/qavajs.js run --config test-e2e/template.ts",
+    "test:e2e": "ts-node --project tsconfig.json node_modules/@qavajs/cli/bin/qavajs.js run --config test-e2e/template.ts",
     "lint:write": "npm run pretty && eslint ./src/ --fix",
     "pretty": "prettier --write ./src/"
   },
@@ -27,7 +27,7 @@
     "@cucumber/gherkin-streams": "^5.0.1",
     "@cucumber/messages": "^22.0.0",
     "@jest/globals": "^29.5.0",
-    "@qavajs/cli": "^0.0.24",
+    "@qavajs/cli": "^0.25.0",
     "@qavajs/console-formatter": "^0.2.1",
     "@qavajs/memory": "^1.4.1",
     "@qavajs/xunit-formatter": "^0.0.4",
