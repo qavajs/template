@@ -31,7 +31,13 @@ type ScenarioTemplate = Scenario & {
 };
 
 const QAVAJS_MULTILINE = 'qavajsMultiline';
-
+const ARG_REGEXP = /(<.+?>)/g;
+function getTemplateRegexp(scenarioName: string): RegExp {
+    const name = scenarioName
+        .replace(/([[\]()^$.?{}*+\\|])/g, '\\$1')
+        .replace(ARG_REGEXP, '(.+?)');
+    return new RegExp(`^${name}$`)
+}
 // memo for gherkin documents
 let gherkinDocuments: Array<GherkinDocument>;
 
@@ -44,7 +50,6 @@ async function loadTemplates() {
     if (!gherkinDocuments) {
         gherkinDocuments = await parseGherkin(templatePaths);
     }
-    const argRegexp = /(<.+?>)/g;
     // memo templates
     const templates: Array<ScenarioTemplate> = cloneDeep(gherkinDocuments)
         .reduce((scenarios: Array<FeatureChild>, doc: GherkinDocument) => scenarios.concat(doc.feature ? doc.feature.children : []), [])
@@ -53,8 +58,8 @@ async function loadTemplates() {
             if (!scenario) throw new Error('Scenario is not defined');
             return {
                 ...scenario,
-                templateRegex: new RegExp(`^${scenario.name.replace(argRegexp, '(.+?)')}$`),
-                argNames: scenario.name.match(argRegexp) ?? [],
+                templateRegex: getTemplateRegexp(scenario.name),
+                argNames: scenario.name.match(ARG_REGEXP) ?? [],
             };
         });
     return templates;

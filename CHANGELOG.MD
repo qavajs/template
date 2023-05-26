@@ -1,4 +1,5 @@
 ## 0.8.0
+- :beetle: fixed regexp control characters escape
 
 ## 0.0.7
 - :beetle: fixed template duration
