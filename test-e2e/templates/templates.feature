@@ -63,3 +63,9 @@ Feature: Templates
 
   Scenario: simple ., +, *, ?, ^, $, (, ), [, ], {, }, |, \
     When I set memory value 'answer' as '42'
+
+  Scenario: template with '<one>' parameter
+    When I set memory value 'answer' as '42'
+
+  Scenario: template with '<one>' and '<two>' parameter
+    When I set memory value 'answer' as '42'

@@ -79,13 +79,23 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pic
             duration: TimeConversion.millisecondsToDuration(0),
         };
     }
-    const scenario = templateDefs.find((s) => s.templateRegex.test(pickleStep.text));
-    if (!scenario) {
+    const scenarioMatches = templateDefs.filter(
+        scenarioTemplate => scenarioTemplate.templateRegex.test(pickleStep.text)
+    );
+    if (scenarioMatches.length === 0) {
         return {
             status: TestStepResultStatus.UNDEFINED,
             duration: TimeConversion.millisecondsToDuration(0),
         };
     }
+    if (scenarioMatches.length > 1) {
+        return {
+            status: TestStepResultStatus.AMBIGUOUS,
+            message: `Step matches multiple templates:\n${scenarioMatches.map(scenarioTemplate => scenarioTemplate.templateRegex).join('\n')}`,
+            duration: TimeConversion.millisecondsToDuration(0),
+        };
+    }
+    const [ scenario ] = scenarioMatches;
     // get scenario arguments
     const matchArgs = pickleStep.text.match(scenario.templateRegex);
     const args = matchArgs ? matchArgs.splice(1) : [];

@@ -1,3 +1,6 @@
+## 0.8.1
+- :beetle: added ambiguous error in case of multiple templates matching step
+
 ## 0.8.0
 - :beetle: fixed regexp control characters escape
 
