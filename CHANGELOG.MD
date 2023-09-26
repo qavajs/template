@@ -1,3 +1,6 @@
+## 0.8.2
+- :beetle: fixed issue with error in dry-run mode
+
 ## 0.8.1
 - :beetle: added ambiguous error in case of multiple templates matching step
 
