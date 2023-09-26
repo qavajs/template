@@ -42,6 +42,7 @@ function getTemplateRegexp(scenarioName: string): RegExp {
 let gherkinDocuments: Array<GherkinDocument>;
 
 async function loadTemplates() {
+    if (!global.config || !global.config.templates) return [];
     const templatePaths = await global.config.templates.reduce(
         // @ts-ignore
         async (paths: Array<string>, pattern: string) => (await paths).concat(await glob(pattern)),
@@ -192,7 +193,7 @@ testCaseRunner.default.prototype.runStep = async function (this: any, pickleStep
     const stepDefinitions = testStep.stepDefinitionIds.map((stepDefinitionId) => findStepDefinition(stepDefinitionId, this.supportCodeLibrary));
     if (stepDefinitions.length === 0) {
         // guard to check if templates property provided
-        if (!global.config.templates) {
+        if (global.config && !global.config.templates) {
             console.warn('Property templates is not defined. Make sure you have added it to config file');
             return {
                 status: TestStepResultStatus.UNDEFINED,
