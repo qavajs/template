@@ -1,6 +1,9 @@
 # @qavajs/template
 Library that allow to define step definitions on Gherkin language.
 
+## Installation
+`npm install @qavajs/template`
+
 ## Templates
 ```gherkin
 Feature: Templates
