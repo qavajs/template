@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest --coverage run",
-    "test:e2e": "ts-node --project tsconfig.json node_modules/@qavajs/cli/bin/qavajs.js run --config test-e2e/template.ts",
+    "test:e2e": "qavajs run --config test-e2e/template.ts",
     "lint:write": "npm run pretty && eslint ./src/ --fix",
     "pretty": "prettier --write ./src/"
   },
@@ -23,32 +23,31 @@
   },
   "homepage": "https://github.com/qavajs/template#readme",
   "devDependencies": {
-    "@cucumber/cucumber": "^9.5.1",
+    "@cucumber/cucumber": "^10.0.1",
     "@cucumber/gherkin-streams": "^5.0.1",
-    "@cucumber/messages": "^22.0.0",
-    "@qavajs/cli": "^0.28.0",
+    "@cucumber/messages": "^23.0.0",
+    "@qavajs/cli": "^0.31.0",
     "@qavajs/console-formatter": "^0.6.0",
     "@qavajs/memory": "^1.6.2",
     "@types/glob": "^8.1.0",
-    "@types/node": "^18.15.5",
-    "@typescript-eslint/eslint-plugin": "^6.7.3",
-    "@typescript-eslint/parser": "^6.7.3",
-    "@vitest/coverage-v8": "^0.33.0",
-    "eslint": "8.50.0",
+    "@types/node": "^20.8.10",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
+    "@vitest/coverage-v8": "^0.34.6",
+    "eslint": "8.52.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.28.1",
-    "eslint-plugin-prettier": "^5.0.0",
-    "get-func-name": "^2.0.2",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-prettier": "^5.0.1",
     "husky": "^8.0.3",
     "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
-    "vitest": "^0.34.5"
+    "vitest": "^0.34.6"
   },
   "dependencies": {
-    "glob": "^10.3.9"
+    "glob": "^10.3.10"
   }
 }
