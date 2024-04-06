@@ -1,3 +1,4 @@
+// @ts-ignore
 import { ISupportCodeLibrary } from '@cucumber/cucumber/lib/support_code_library_builder/types';
 import { Duration, GherkinDocument, Step, TestStepResult, TimeConversion } from '@cucumber/messages';
 import { GherkinStreams } from '@cucumber/gherkin-streams';
@@ -12,7 +13,7 @@ export function cloneDeep(obj: any): any {
 }
 
 export function findStepDefinition(id: string, supportCodeLibrary: ISupportCodeLibrary) {
-    return supportCodeLibrary.stepDefinitions.find((definition) => definition.id === id);
+    return supportCodeLibrary.stepDefinitions.find((definition: any) => definition.id === id);
 }
 
 /**

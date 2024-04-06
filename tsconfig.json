@@ -8,7 +8,7 @@
     "node_modules"
   ],
   "compilerOptions": {
-    "target": "es2016",
+    "target": "es2017",
     "module": "node16",
     "moduleResolution": "node16",
     "outDir": "./lib",
@@ -32,8 +32,7 @@
       "es2020.string"
     ],
     "types": [
-      "node",
-      "@qavajs/memory"
+      "node"
     ]
   }
 }
