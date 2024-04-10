@@ -6,6 +6,7 @@
     "build": "tsc",
     "test": "vitest --coverage run",
     "test:e2e": "qavajs run --config test-e2e/template.ts",
+    "test:e2e:debug": "qavajs run --config test-e2e/template.ts --tags @debug",
     "lint:write": "npm run pretty && eslint ./src/ --fix",
     "pretty": "prettier --write ./src/"
   },

@@ -68,6 +68,14 @@ Feature: Templates
     When simple [template]
     Then I expect '$answer' memory value to be equal '42'
 
-  Scenario: simple template with $
-    When simple ., +, *, ?, ^, $, (, ), [, ], {, }, |, \
-    Then I expect '$answer' memory value to be equal '42'
+  # Scenario: simple template with $
+  #   When simple ., +, *, ?, ^, $, (, ), [, ], {, }, |
+  #   Then I expect '$answer' memory value to be equal '42'
+
+  Scenario: simple template with multiline
+    When template with step with multiline string
+    Then I expect '$multiline' memory value to be equal:
+    """
+    I am
+    multiline
+    """

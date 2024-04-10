@@ -1,5 +1,12 @@
 Feature: Templates
 
+  Scenario: template with step with multiline string
+    When step with multiline string:
+    """
+    I am
+    multiline
+    """
+
   Scenario: simple template
     When I set memory value 'answer' as '42'
 
@@ -55,13 +62,13 @@ Feature: Templates
     When step with data table:
       | dataTableParam | <param> |
 
-  Scenario: simple (template)
+  Scenario: simple \(template\)
     When I set memory value 'answer' as '42'
 
   Scenario: simple [template]
     When I set memory value 'answer' as '42'
 
-  Scenario: simple ., +, *, ?, ^, $, (, ), [, ], {, }, |, \
+  Scenario: simple ., +, *, ?, ^, $, (, ), [, ], {, }, |
     When I set memory value 'answer' as '42'
 
   Scenario: template with '<one>' parameter
