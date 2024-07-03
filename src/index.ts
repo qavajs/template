@@ -149,7 +149,7 @@ async function runTemplate(this: any, templateDefs: Array<ScenarioTemplate>, pic
             if (result.status === TestStepResultStatus.UNDEFINED) {
                 return {
                     status: TestStepResultStatus.FAILED,
-                    message: `${step.text} is not defined`,
+                    message: `'${step.text}' is not defined`,
                     duration: TimeConversion.millisecondsToDuration(0),
                 };
             }
