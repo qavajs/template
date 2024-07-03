@@ -1,3 +1,6 @@
+## 0.8.3
+- :pencil: update dependencies
+
 ## 0.8.2
 - :beetle: fixed issue with error in dry-run mode
 
