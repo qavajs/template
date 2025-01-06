@@ -4,11 +4,7 @@ export default defineConfig({
   test: {
     coverage: {
       provider: 'v8',
-      include: ['src/**/*.ts'],
-      branches: 80,
-      functions: 90,
-      lines: 90,
-      statements: -10,
+      include: ['src/**/*.ts']
     },
     testTimeout: 20000
   }

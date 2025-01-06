@@ -20,11 +20,6 @@ import {
     findStepDefinition, resolveTemplateParams
 } from './utils';
 
-declare global {
-    // eslint-disable-next-line no-var
-    var config: any;
-}
-
 type ScenarioTemplate = Scenario & {
     templateRegex: RegExp;
     argNames: Array<string>;
@@ -41,9 +36,9 @@ function getTemplateRegexp(scenarioName: string): RegExp {
 // memo for gherkin documents
 let gherkinDocuments: Array<GherkinDocument>;
 
-async function loadTemplates() {
-    if (!global.config || !global.config.templates) return [];
-    const templatePaths = await global.config.templates.reduce(
+async function loadTemplates(config: any) {
+    if (!config || !config.templates) return [];
+    const templatePaths = await config.templates.reduce(
         // @ts-ignore
         async (paths: Array<string>, pattern: string) => (await paths).concat(await glob(pattern)),
         [],
@@ -193,14 +188,14 @@ testCaseRunner.default.prototype.runStep = async function (this: any, pickleStep
     const stepDefinitions = testStep.stepDefinitionIds.map((stepDefinitionId) => findStepDefinition(stepDefinitionId, this.supportCodeLibrary));
     if (stepDefinitions.length === 0) {
         // guard to check if templates property provided
-        if (global.config && !global.config.templates) {
+        if (this.world.config && !this.world.config.templates) {
             console.warn('Property templates is not defined. Make sure you have added it to config file');
             return {
                 status: TestStepResultStatus.UNDEFINED,
                 duration: TimeConversion.millisecondsToDuration(0),
             };
         }
-        const templates = await loadTemplates();
+        const templates = await loadTemplates(this.world.config);
         return runTemplate.apply(this, [templates, pickleStep, []]);
     }
     return originRunStep.apply(this, [pickleStep, testStep]);
