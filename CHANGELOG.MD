@@ -1,3 +1,18 @@
+# Change Log
+
+All notable changes to the "@qavajs/templates" will be documented in this file.
+
+Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+
+:rocket: - new feature  
+:beetle: - bugfix  
+:x: - deprecation/removal  
+:pencil: - chore  
+:microscope: - experimental
+
+## 1.0.0
+- :beetle: moved config from global to world
+
 ## 0.8.3
 - :pencil: update dependencies
 
